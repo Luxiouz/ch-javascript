@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" class="min-vh-100">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Javascript Coder</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+<body class="min-vh-100">
+
+    <div class="container d-flex flex-column justify-content-between min-vh-100">
+        <header class="my-4 d-flex align-items-baseline">
+            <h1 class="text-centers">Credit Purchase Simulator</h1>
+            <small class="text-muted">&nbsp;v.1.1.0</small>
+        </header>
+
+        <main class="d-flex flex-column justify-content-start flex-grow-1">
+            <section id="section-data">
+                <form id="form-data-loan">
+                    <div class="form-outline mb-4">
+                      <label class="form-label" for="formAmount">Amount (monto):</label>
+                      <input type="number" id="formAmount" class="form-control" name="amount" change="inputChange" required/>
+                    </div>
+
+                    <div class="form-outline mb-4">
+                      <label class="form-label" for="formIva">Iva :</label>
+                      <input type="number" disabled id="formIva" class="form-control" name="iva" change="inputChange" required value="1.21"/>
+                    </div>
+                  
+                    <div class="form-outline mb-4">
+                      <label class="form-label" for="formRate">Rate (tasa):</label>
+                      <input type="number" id="formRate" class="form-control" name="rate" change="inputChange" required/>
+                    </div>
+                  
+                    <div class="form-outline mb-4">
+                      <label class="form-label" for="formInstallments">Installments (cuotas):</label>
+                      <input type="number" id="formInstallments" class="form-control" name="installments" change="inputChange" required/>
+                    </div>
+                  
+                    <button type="submit" class="btn btn-primary btn-block mb-4">Simular</button>
+                  </form>
+            </section>
+
+            <section class="mb-5" id="section-historial">
+              <div id="section-historial-no-results">
+                <p>Aun no hay registros en el historial</p>
+              </div>
+              <div id="section-historial-results">
+                <h3>Simulation Historial</h3>
+                <div id="historial-results">
+
+                </div>
+             </div>
+            </section>
+        </main>
+
+        <footer class="bg-light text-center text-lg-start mt-4">
+            <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+              © 2021 Copyright: Credit Purchase Simulator
+            </div>
+          </footer>
+    </div>
+    
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="./js/main.js"></script>
+</body>
+</html>
