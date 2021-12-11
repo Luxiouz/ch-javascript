@@ -70,9 +70,9 @@ class Loan {
 
         innerhtml +=
             `<tr>
-        <td col="4">Total Loan: $${round2(total_detail)} (${round2(total_detail/dolarExchange)} USD)</td>
+        <td col="4">Total Loan: $${round2(total_detail)} (${round2(total_detail / dolarExchange)} USD)</td>
         </tr><tr>
-        <td col="4">Total Payment: $${round2(totalPayment)} (${round2(totalPayment/dolarExchange)} USD)</td>
+        <td col="4">Total Payment: $${round2(totalPayment)} (${round2(totalPayment / dolarExchange)} USD)</td>
         </tr>
         </table>
         <hr>`
@@ -80,8 +80,8 @@ class Loan {
     }
 }
 
-function round2(number){
-    return Math.round(number*100)/100;
+function round2(number) {
+    return Math.round(number * 100) / 100;
 }
 
 //DOM
@@ -96,6 +96,7 @@ $(() => {
     const historialSectionNoResults = $('#section-historial-no-results');
     const formLoan = $('#form-data-loan');
     const btnNewSim = $('#btn-simulation');
+    const btnClear = $('#btn-clear')
     const titleApp = $('#titleApp');
 
     formLoan.hide();
@@ -117,13 +118,16 @@ $(() => {
     async function getDolarData() {
         let data = await fetch('https://www.dolarsi.com/api/api.php?type=valoresprincipales');
         data = await data.json();
-        dolarExchange = data[0]?.casa?.compra ? round2(Number(data[0].casa.compra.replace(',','.'))) : 110;
+        dolarExchange = data[0]?.casa?.compra ? round2(Number(data[0].casa.compra.replace(',', '.'))) : 110;
         $('#dolar-exchange').html(dolarExchange);
         console.log('dolarExchange', dolarExchange)
         setDomHistorial();
     }
 
     function setDomHistorial() {
+
+        formLoan.hide();
+        btnNewSim.hide();
 
         historial = getFromLocalStorage();
 
@@ -135,7 +139,7 @@ $(() => {
                 const historialDiv = $('#historial-results');
                 let innerhtml = '';
                 for (let i = historial.length - 1; i >= 0; i--) {
-                    innerhtml += historial[i].getDomDetail(dolarExchange, i+1);
+                    innerhtml += historial[i].getDomDetail(dolarExchange, i + 1);
                 }
 
                 historialDiv.html(innerhtml);
@@ -157,7 +161,7 @@ $(() => {
             historial = historial.map(loan => new Loan(loan.amount, loan.rate, loan.installments, loan.iva));
 
         } else {
-            localStorage.setItem('historial', historial)
+            localStorage.setItem('historial', JSON.stringify(historial))
         }
 
         return historial;
@@ -184,6 +188,12 @@ $(() => {
             } else return 'Wrong interest rate, try again.'
         } else return 'Wrong amount, try again.'
     }
+
+    btnClear.click(() => {
+        localStorage.clear();
+        historial = [];
+        setDomHistorial();
+    })
 
     formLoan.submit((e) => {
         e.preventDefault();
@@ -215,73 +225,6 @@ $(() => {
                 'success'
             );
         }
-    })
+    });
 
-
-    //The following code will be deprecated in future relases
-
-
-    //Console
-
-    function crear(monto, tasa, cuotas) {
-        const amount = Number(monto);
-        const installments = Number(cuotas);
-        if (!isNaN(amount)) {
-            if (!isNaN(tasa)) {
-                if (!isNaN(cuotas)) {
-                    const prestamo = new Loan(amount, tasa, cuotas, IVA);
-                    historial.push(prestamo);
-
-                    localStorage.setItem('historial', JSON.stringify(historial));
-
-                    return 'Préstamo creado correctamente'
-                } else return 'Número de cuotas erróneo, vuelva a ingresar.'
-            } else return 'Tasa de interés erróneo, vuelva a ingresar.'
-        } else return 'Monto erróneo, vuelva a ingresar.'
-    }
-
-    function getDetail() {
-        if (historial?.length > 0) {
-            console.log(historial[historial.length - 1].getDetail());
-            return 'Proceso finalizado.'
-        } else {
-            return 'Aun no se han simulado préstamos.'
-        }
-    }
-
-    function getHistorial() {
-        if (historial?.length > 0) {
-            historial.forEach(item => {
-                console.log(item.getDetail());
-            });
-            return 'Proceso finalizado.'
-        } else {
-            return 'Aun no se han simulado préstamos.'
-        }
-    }
-
-    function getHistorialSort() {
-
-        if (historial?.length > 0) {
-            const historialCopy = [...historial];
-            historialCopy.sort((a, b) => a.amount - b.amount);
-            historialCopy.forEach(item => {
-                console.log(item.getDetail());
-            });
-            return 'Proceso finalizado.'
-        } else {
-            return 'Aun no se han simulado préstamos.'
-        }
-    }
-
-})
-
-// alert('Simulador de préstamos, ver la consola para iniciar')
-console.log(`*******Calculadora de cuotas v.0.1*******
-1. Usa crear(monto, tasa, cuotas) para crear una simulación de prestamo.
-2. Usa getDetail() para mostrar el detalle del último préstamo creado.
-3. Usa getHistorial() para mostrar el historial de préstamos simulados.
-4. Usa getHistorialSort() para mostrar el historial de préstamos simulados ordenados de menor a mayor según el monto.
-5. Dona a nuestro proyecto aquí: http://shorturl.at/ajCR1
-`)
-
+});
