@@ -82,156 +82,185 @@ class Loan {
 
 //DOM
 
-//Initialization
-const IVA = 0.21;
-let historial = [];
+$(() => {
 
-setDomHistorial();
-// end of initializacion
-
-function setDomHistorial() {
-
-    historial = getFromLocalStorage();
-
+    //Initialization
+    const IVA = 0.21;
+    let historial = [];
     const historialSectionResults = $('#section-historial-results');
     const historialSectionNoResults = $('#section-historial-no-results');
+    const formLoan = $('#form-data-loan');
+    const btnNewSim = $('#btn-simulation');
+    const titleApp = $('#titleApp');
 
-    historialSectionResults.css({ display: 'none' });
-    historialSectionNoResults.css({ display: 'none' });
+    formLoan.hide();
+    btnNewSim.hide();
+    titleApp.hide();
 
-    if (historial && historial.length > 0) {
-        historialSectionResults.css({ display: 'block' });
-        const historialDiv = $('#historial-results');
-        let innerhtml = '';
-        for (let i = historial.length - 1; i >= 0; i--) {
-            innerhtml += historial[i].getDomDetail();
+    btnNewSim.click(()=> {
+        btnNewSim.fadeOut(500, ()=>{
+            formLoan.fadeIn(1000);
+        });
+        
+    })
+
+    titleApp.fadeIn(1500);
+    setDomHistorial();
+    // end of initializacion
+
+
+    function setDomHistorial() {
+
+        historial = getFromLocalStorage();
+
+        historialSectionNoResults.hide();
+        historialSectionResults.hide();
+
+        titleApp.fadeIn(1500, ()=>{
+            if (historial && historial.length > 0) {
+                const historialDiv = $('#historial-results');
+                let innerhtml = '';
+                for (let i = historial.length - 1; i >= 0; i--) {
+                    innerhtml += historial[i].getDomDetail();
+                }
+    
+                historialDiv.html(innerhtml);
+                historialSectionResults.fadeIn(700, ()=>{
+                    btnNewSim.fadeIn(700);
+                });
+            } else {
+                historialSectionNoResults.fadeIn(700, ()=>{
+                    btnNewSim.fadeIn(700);
+                });
+            }
+        });
+    }
+
+    function getFromLocalStorage() {
+        if (localStorage.getItem('historial')) {
+            historial = JSON.parse(localStorage.getItem('historial'));
+
+            historial = historial.map(loan => new Loan(loan.amount, loan.rate, loan.installments, loan.iva));
+
+        } else {
+            localStorage.setItem('historial', historial)
         }
 
-        historialDiv.html(innerhtml);
-    } else {
-        historialSectionNoResults.css({ display: 'none' });
+        return historial;
     }
 
+    function validateLoan(formData) {
+        let loan;
+        const amount = formData.get('amount');
+        const rate = formData.get('rate');
+        const installments = formData.get('installments');
 
-}
+        if (!isNaN(amount) && amount > 0) {
+            if (!isNaN(rate) && rate > 0) {
+                if (!isNaN(installments) && installments > 0) {
+                    loan = new Loan(amount, rate, installments, IVA);
+                    historial.push(loan);
 
-function getFromLocalStorage() {
-    if (localStorage.getItem('historial')) {
-        historial = JSON.parse(localStorage.getItem('historial'));
+                    localStorage.setItem('historial', JSON.stringify(historial));
 
-        historial = historial.map(loan => new Loan(loan.amount, loan.rate, loan.installments, loan.iva));
+                    setDomHistorial();
 
-    } else {
-        localStorage.setItem('historial', historial)
+                    return loan;
+                } else return 'Wrong installments number, try again.'
+            } else return 'Wrong interest rate, try again.'
+        } else return 'Wrong amount, try again.'
     }
 
-    return historial;
-}
+    formLoan.submit((e) => {
+        e.preventDefault();
 
-function validateLoan(formData) {
-    let loan;
-    const amount = formData.get('amount');
-    const rate = formData.get('rate');
-    const installments = formData.get('installments');
+        const formData = new FormData(e.target);
 
-    if (!isNaN(amount) && amount > 0) {
-        if (!isNaN(rate) && rate > 0) {
-            if (!isNaN(installments) && installments > 0) {
-                loan = new Loan(amount, rate, installments, IVA);
-                historial.push(loan);
+        const validation = validateLoan(formData);
 
-                localStorage.setItem('historial', JSON.stringify(historial));
+        if (typeof validation === 'string') {
+            Swal.fire(
+                'Oh no!',
+                validation,
+                'warning'
+            );
+        } else {
 
-                setDomHistorial();
+            formLoan.hide();
+            formLoan.trigger('reset');
 
-                return loan;
-            } else return 'Wrong installments number, try again.'
-        } else return 'Wrong interest rate, try again.'
-    } else return 'Wrong amount, try again.'
-}
+            historialSectionResults.hide();
+            formLoan.fadeOut('slow', () => {
+                btnNewSim.fadeIn(1000);
+                historialSectionResults.fadeIn(1000);
+            })
 
-const formLoan = $('#form-data-loan');
-formLoan.submit((e) => {
-    e.preventDefault();
+            Swal.fire(
+                'Good job!',
+                'Loan simulation was created!',
+                'success'
+            );
+        }
+    })
 
-    const formData = new FormData(e.target);
 
-    const validation = validateLoan(formData);
+    //The following code will be deprecated in future relases
 
-    if (typeof validation === 'string') {
-        Swal.fire(
-            'Oh no!',
-            validation,
-            'warning'
-        );
-    } else {
 
-        formLoan.trigger('reset');
+    //Console
 
-        Swal.fire(
-            'Good job!',
-            'Loan simulation was created!',
-            'success'
-        );
+    function crear(monto, tasa, cuotas) {
+        const amount = Number(monto);
+        const installments = Number(cuotas);
+        if (!isNaN(amount)) {
+            if (!isNaN(tasa)) {
+                if (!isNaN(cuotas)) {
+                    const prestamo = new Loan(amount, tasa, cuotas, IVA);
+                    historial.push(prestamo);
+
+                    localStorage.setItem('historial', JSON.stringify(historial));
+
+                    return 'Préstamo creado correctamente'
+                } else return 'Número de cuotas erróneo, vuelva a ingresar.'
+            } else return 'Tasa de interés erróneo, vuelva a ingresar.'
+        } else return 'Monto erróneo, vuelva a ingresar.'
     }
+
+    function getDetail() {
+        if (historial?.length > 0) {
+            console.log(historial[historial.length - 1].getDetail());
+            return 'Proceso finalizado.'
+        } else {
+            return 'Aun no se han simulado préstamos.'
+        }
+    }
+
+    function getHistorial() {
+        if (historial?.length > 0) {
+            historial.forEach(item => {
+                console.log(item.getDetail());
+            });
+            return 'Proceso finalizado.'
+        } else {
+            return 'Aun no se han simulado préstamos.'
+        }
+    }
+
+    function getHistorialSort() {
+
+        if (historial?.length > 0) {
+            const historialCopy = [...historial];
+            historialCopy.sort((a, b) => a.amount - b.amount);
+            historialCopy.forEach(item => {
+                console.log(item.getDetail());
+            });
+            return 'Proceso finalizado.'
+        } else {
+            return 'Aun no se han simulado préstamos.'
+        }
+    }
+
 })
-
-
-//The following code will be deprecated in future relases
-
-
-//Console
-
-function crear(monto, tasa, cuotas) {
-    const amount = Number(monto);
-    const installments = Number(cuotas);
-    if (!isNaN(amount)) {
-        if (!isNaN(tasa)) {
-            if (!isNaN(cuotas)) {
-                const prestamo = new Loan(amount, tasa, cuotas, IVA);
-                historial.push(prestamo);
-
-                localStorage.setItem('historial', JSON.stringify(historial));
-
-                return 'Préstamo creado correctamente'
-            } else return 'Número de cuotas erróneo, vuelva a ingresar.'
-        } else return 'Tasa de interés erróneo, vuelva a ingresar.'
-    } else return 'Monto erróneo, vuelva a ingresar.'
-}
-
-function getDetail() {
-    if (historial?.length > 0) {
-        console.log(historial[historial.length - 1].getDetail());
-        return 'Proceso finalizado.'
-    } else {
-        return 'Aun no se han simulado préstamos.'
-    }
-}
-
-function getHistorial() {
-    if (historial?.length > 0) {
-        historial.forEach(item => {
-            console.log(item.getDetail());
-        });
-        return 'Proceso finalizado.'
-    } else {
-        return 'Aun no se han simulado préstamos.'
-    }
-}
-
-function getHistorialSort() {
-
-    if (historial?.length > 0) {
-        const historialCopy = [...historial];
-        historialCopy.sort((a, b) => a.amount - b.amount);
-        historialCopy.forEach(item => {
-            console.log(item.getDetail());
-        });
-        return 'Proceso finalizado.'
-    } else {
-        return 'Aun no se han simulado préstamos.'
-    }
-}
 
 // alert('Simulador de préstamos, ver la consola para iniciar')
 console.log(`*******Calculadora de cuotas v.0.1*******
