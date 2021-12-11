@@ -93,23 +93,23 @@ function setDomHistorial() {
 
     historial = getFromLocalStorage();
 
-    const historialSectionResults = document.getElementById('section-historial-results')
-    const historialSectionNoResults = document.getElementById('section-historial-no-results')
+    const historialSectionResults = $('#section-historial-results');
+    const historialSectionNoResults = $('#section-historial-no-results');
 
-    historialSectionResults.style.display = 'none';
-    historialSectionNoResults.style.display = 'none';
+    historialSectionResults.css({ display: 'none' });
+    historialSectionNoResults.css({ display: 'none' });
 
     if (historial && historial.length > 0) {
-        historialSectionResults.style.display = 'block';
-        const historialDiv = document.getElementById('historial-results');
+        historialSectionResults.css({ display: 'block' });
+        const historialDiv = $('#historial-results');
         let innerhtml = '';
         for (let i = historial.length - 1; i >= 0; i--) {
             innerhtml += historial[i].getDomDetail();
         }
 
-        historialDiv.innerHTML = innerhtml;
+        historialDiv.html(innerhtml);
     } else {
-        historialSectionNoResults.style.display = 'block';
+        historialSectionNoResults.css({ display: 'none' });
     }
 
 
@@ -150,11 +150,11 @@ function validateLoan(formData) {
     } else return 'Wrong amount, try again.'
 }
 
-const formLoan = document.getElementById('form-data-loan');
-formLoan.addEventListener('submit', (e) => {
+const formLoan = $('#form-data-loan');
+formLoan.submit((e) => {
     e.preventDefault();
 
-    const formData = new FormData(formLoan);
+    const formData = new FormData(e.target);
 
     const validation = validateLoan(formData);
 
@@ -165,6 +165,9 @@ formLoan.addEventListener('submit', (e) => {
             'warning'
         );
     } else {
+
+        formLoan.trigger('reset');
+
         Swal.fire(
             'Good job!',
             'Loan simulation was created!',
