@@ -6,24 +6,6 @@ class Loan {
         this.iva = Number(iva);
     }
 
-    getDetail() {
-        const iva_detail = this.amount * this.iva;
-        const total_detail = this.amount + iva_detail;
-
-        console.log('**********LOAN DETAIL*********')
-        console.log(`Monto: ${this.amount}`)
-        console.log(`Iva: ${iva_detail}`)
-        console.log(`Total: ${total_detail}`)
-        console.log('**********CUOTAS*********')
-        for (let i = 0; i < this.installments; i++) {
-            const capital = (this.installments - (i)) * total_detail / this.installments;
-
-            console.log(`Capital: ${capital} - Cuota ${i + 1}: ${total_detail / this.installments + capital * this.rate / 100}`)
-        }
-        return `**********FINISH LOAN DETAIL***********
-        `
-    }
-
     getDomDetail(dolarExchange, index) {
         const iva_detail = this.amount * this.iva;
         const total_detail = Number(this.amount) + Number(iva_detail);
@@ -120,7 +102,6 @@ $(() => {
         data = await data.json();
         dolarExchange = data[0]?.casa?.compra ? round2(Number(data[0].casa.compra.replace(',', '.'))) : 110;
         $('#dolar-exchange').html(dolarExchange);
-        console.log('dolarExchange', dolarExchange)
         setDomHistorial();
     }
 
