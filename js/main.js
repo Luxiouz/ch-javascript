@@ -24,7 +24,7 @@ class Loan {
         `
     }
 
-    getDomDetail() {
+    getDomDetail(dolarExchange) {
         const iva_detail = this.amount * this.iva;
         const total_detail = Number(this.amount) + Number(iva_detail);
 
@@ -56,28 +56,32 @@ class Loan {
 
         for (let i = 0; i < this.installments; i++) {
             const capital = (this.installments - (i)) * total_detail / this.installments;
-            const paymentInstallment = Math.round((total_detail / this.installments + capital * this.rate / 100) * 100) / 100;
+            const paymentInstallment = round2(total_detail / this.installments + capital * this.rate / 100);
             totalPayment += paymentInstallment;
 
             innerhtml +=
                 `
             <tr>
                 <td>${i + 1}</td>
-                <td>$${Math.round(capital * 100) / 100}</td>
+                <td>$${round2(capital)}</td>
                 <td>$${paymentInstallment}</td>
             </tr>`;
         }
 
         innerhtml +=
             `<tr>
-        <td col="4">Total Loan: $${Math.round(total_detail * 100) / 100}</td>
+        <td col="4">Total Loan: $${round2(total_detail)} (${round2(total_detail/dolarExchange)} USD)</td>
         </tr><tr>
-        <td col="4">Total Payment: $${Math.round(totalPayment * 100) / 100}</td>
+        <td col="4">Total Payment: $${round2(totalPayment)} (${round2(totalPayment/dolarExchange)} USD)</td>
         </tr>
         </table>
         <hr>`
         return innerhtml;
     }
+}
+
+function round2(number){
+    return Math.round(number*100)/100;
 }
 
 //DOM
@@ -87,6 +91,7 @@ $(() => {
     //Initialization
     const IVA = 0.21;
     let historial = [];
+    let dolarExchange = 0;
     const historialSectionResults = $('#section-historial-results');
     const historialSectionNoResults = $('#section-historial-no-results');
     const formLoan = $('#form-data-loan');
@@ -97,17 +102,26 @@ $(() => {
     btnNewSim.hide();
     titleApp.hide();
 
-    btnNewSim.click(()=> {
-        btnNewSim.fadeOut(500, ()=>{
+    btnNewSim.click(() => {
+        btnNewSim.fadeOut(500, () => {
             formLoan.fadeIn(1000);
         });
-        
+
     })
 
     titleApp.fadeIn(1500);
-    setDomHistorial();
+    getDolarData();
+
     // end of initializacion
 
+    async function getDolarData() {
+        let data = await fetch('https://www.dolarsi.com/api/api.php?type=valoresprincipales');
+        data = await data.json();
+        dolarExchange = data[0]?.casa?.compra ? round2(Number(data[0].casa.compra.replace(',','.'))) : 110;
+        $('#dolar-exchange').html(dolarExchange);
+        console.log('dolarExchange', dolarExchange)
+        setDomHistorial();
+    }
 
     function setDomHistorial() {
 
@@ -116,20 +130,20 @@ $(() => {
         historialSectionNoResults.hide();
         historialSectionResults.hide();
 
-        titleApp.fadeIn(1500, ()=>{
+        titleApp.fadeIn(1500, () => {
             if (historial && historial.length > 0) {
                 const historialDiv = $('#historial-results');
                 let innerhtml = '';
                 for (let i = historial.length - 1; i >= 0; i--) {
-                    innerhtml += historial[i].getDomDetail();
+                    innerhtml += historial[i].getDomDetail(dolarExchange);
                 }
-    
+
                 historialDiv.html(innerhtml);
-                historialSectionResults.fadeIn(700, ()=>{
+                historialSectionResults.fadeIn(700, () => {
                     btnNewSim.fadeIn(700);
                 });
             } else {
-                historialSectionNoResults.fadeIn(700, ()=>{
+                historialSectionNoResults.fadeIn(700, () => {
                     btnNewSim.fadeIn(700);
                 });
             }
