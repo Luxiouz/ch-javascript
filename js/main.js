@@ -24,14 +24,14 @@ class Loan {
         `
     }
 
-    getDomDetail(dolarExchange) {
+    getDomDetail(dolarExchange, index) {
         const iva_detail = this.amount * this.iva;
         const total_detail = Number(this.amount) + Number(iva_detail);
 
         let totalPayment = 0;
 
         let innerhtml =
-            `<h4 style="text-decoration: underline;">Loan Simulation</h4>
+            `<h4 style="text-decoration: underline;">Loan Simulation #${index}</h4>
         <br>
         <table class="table table-striped">
             <tr>
@@ -135,7 +135,7 @@ $(() => {
                 const historialDiv = $('#historial-results');
                 let innerhtml = '';
                 for (let i = historial.length - 1; i >= 0; i--) {
-                    innerhtml += historial[i].getDomDetail(dolarExchange);
+                    innerhtml += historial[i].getDomDetail(dolarExchange, i+1);
                 }
 
                 historialDiv.html(innerhtml);
