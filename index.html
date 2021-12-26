@@ -10,7 +10,7 @@
     integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 </head>
 
-<body class="min-vh-100">
+<body class="min-vh-100" style="display: none;">
 
   <div class="container d-flex flex-column justify-content-between min-vh-100">
     <header class="my-4 d-flex align-items-baseline">
@@ -34,8 +34,12 @@
               value="1.21" />
           </div>
 
+          
+
           <div class="form-outline mb-4">
             <label class="form-label" for="formRate">Rate (tasa)%:</label>
+            <div id="loan-types" class="d-flex">
+            </div>
             <input type="number" id="formRate" class="form-control" name="rate" change="inputChange" required />
           </div>
 

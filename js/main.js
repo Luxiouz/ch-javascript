@@ -74,16 +74,23 @@ $(() => {
     const IVA = 0.21;
     let historial = [];
     let dolarExchange = 0;
+    let loanTypes = [];
+    const body = $('body');
     const historialSectionResults = $('#section-historial-results');
     const historialSectionNoResults = $('#section-historial-no-results');
     const formLoan = $('#form-data-loan');
+    const formLoanRate = $('#formRate');
     const btnNewSim = $('#btn-simulation');
-    const btnClear = $('#btn-clear')
+    const btnClear = $('#btn-clear');
     const titleApp = $('#titleApp');
+    const loanTypesContainer = $('#loan-types');
 
+    historialSectionResults.hide();
+    historialSectionNoResults.hide();
     formLoan.hide();
     btnNewSim.hide();
     titleApp.hide();
+    body.fadeIn(1000);
 
     btnNewSim.click(() => {
         btnNewSim.fadeOut(500, () => {
@@ -94,6 +101,7 @@ $(() => {
 
     titleApp.fadeIn(1500);
     getDolarData();
+    getLoanTypesData();
 
     // end of initializacion
 
@@ -102,6 +110,28 @@ $(() => {
         data = await data.json();
         dolarExchange = data[0]?.casa?.compra ? round2(Number(data[0].casa.compra.replace(',', '.'))) : 110;
         $('#dolar-exchange').html(dolarExchange);
+        //setDomHistorial();
+    }
+
+    async function getLoanTypesData(){
+        let data = await fetch('../data/data.json');
+        data = await data.json();
+        loanTypes = data.loanTypes;
+        loanTypesContainer.html('');
+        for (const item of loanTypes) {
+            const loanTypeItem = 
+                `<div class="card mb-3 me-3" style="cursor:pointer" id="loanTypeItem--${item.id}">
+                    <img src="./assets/${item.imgPath}" class="card-img-top" alt="${item.type}" style="width: 140px; height: 140px;">
+                    <div class="card-body">
+                    <p class="card-text text-center">${item.type}</p>
+                    </div>
+                </div>`;
+            loanTypesContainer.append(loanTypeItem);
+            $(`#loanTypeItem--${item.id}`).click(()=>{
+                formLoanRate.val(Number(item.rate));
+            })
+        }
+        
         setDomHistorial();
     }
 

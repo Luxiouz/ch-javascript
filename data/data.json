@@ -1,0 +1,27 @@
+{
+    "loanTypes": [
+    {
+        "id":"car",
+        "type": "Car Loan",
+        "rate": 16,
+        "imgPath":"car_loan.jpeg"
+    },
+    {
+        "id":"house",
+        "type": "House Loan",
+        "rate": 21,
+        "imgPath":"house_loan.jpeg"
+    },
+    {
+        "id":"creditCard",
+        "type": "Credit Card",
+        "rate": 64,
+        "imgPath":"creditcard_loan.jpeg"
+    },
+    {
+        "id":"academicLoan",
+        "type": "Academic Loan",
+        "rate": 36,
+        "imgPath":"academic_loan.png"
+    }
+]}
